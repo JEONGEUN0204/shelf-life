@@ -1,6 +1,17 @@
-# 유통기한 (shelf-life)
+<p align="center">
+  <img src="docs/screenshots/icon.png" width="96" alt="언제까지? 앱 아이콘" />
+</p>
 
-식품·화장품 등의 유통기한/개봉 후 사용기한을 기록하고, 만료 전에 알림을 받는 Expo 앱.
+<h1 align="center">언제까지?</h1>
+
+<p align="center">식품·화장품 등의 유통기한/개봉 후 사용기한을 기록하고, 만료 전에 알림을 받는 Expo 앱.</p>
+
+<p align="center">
+  <img src="docs/screenshots/splash.png" width="200" alt="스플래시" />
+  <img src="docs/screenshots/home.png" width="200" alt="목록" />
+  <img src="docs/screenshots/new.png" width="200" alt="새 항목" />
+  <img src="docs/screenshots/settings.png" width="200" alt="설정" />
+</p>
 
 ## 기능
 
@@ -26,3 +37,5 @@ npx expo prebuild --platform android --no-install
 cd android && ./gradlew assembleRelease
 # 결과물: android/app/build/outputs/apk/release/app-release.apk
 ```
+
+APK 파일을 폰으로 보낸 뒤 열면 설치됩니다. 처음 설치할 때는 파일을 연 앱(카카오톡, 파일 관리자 등)에 "출처를 알 수 없는 앱 설치" 권한을 허용해야 합니다.

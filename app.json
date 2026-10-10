@@ -1,18 +1,15 @@
 {
   "expo": {
-    "name": "유통기한",
+    "name": "언제까지?",
     "slug": "shelf-life",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "shelflife",
     "userInterfaceStyle": "automatic",
-    "ios": {
-      "icon": "./assets/expo.icon"
-    },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#FAF6EF",
+        "backgroundColor": "#5B7B4A",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -54,7 +51,7 @@
         {
           "backgroundColor": "#FAF6EF",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76,
+          "imageWidth": 200,
           "dark": {
             "backgroundColor": "#1A1815"
           }
