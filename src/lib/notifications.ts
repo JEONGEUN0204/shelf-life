@@ -84,24 +84,36 @@ async function schedule(plan: PlannedNotification): Promise<string> {
   });
 }
 
-async function cancelIds(ids: string[]) {
-  await Promise.all(ids.map((id) => Notifications.cancelScheduledNotificationAsync(id)));
+let resyncInFlight: Promise<void> | null = null;
+
+/**
+ * 항목의 예약 알림을 모두 취소한다.
+ * 화면이 들고 있는 notificationIds는 resync 이후 낡은 값일 수 있으므로,
+ * 진행 중인 resync를 기다린 뒤 OS에 예약된 알림을 data.itemId로 찾아 지운다.
+ */
+async function cancelForItem(itemId: number) {
+  await resyncInFlight?.catch(() => {});
+  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+  await Promise.all(
+    scheduled
+      .filter((request) => request.content.data?.itemId === itemId)
+      .map((request) => Notifications.cancelScheduledNotificationAsync(request.identifier)),
+  );
 }
 
 /** 항목 하나의 알림을 취소 후 현재 내용 기준으로 다시 예약한다. */
 export async function syncItemNotifications(db: SQLiteDatabase, item: Item) {
-  await cancelIds(item.notificationIds);
+  await cancelForItem(item.id);
   const settings = await getSettings(db);
   const ids = await Promise.all(planForItem(item, settings, new Date()).map(schedule));
   await setNotificationIds(db, item.id, ids);
 }
 
-export async function cancelItemNotifications(db: SQLiteDatabase, item: Item) {
-  await cancelIds(item.notificationIds);
-  await setNotificationIds(db, item.id, []);
+/** 항목 상태를 바꾸거나 삭제한 **뒤에** 호출해야 진행 중인 resync가 다시 예약하지 않는다. */
+export async function cancelItemNotifications(db: SQLiteDatabase, itemId: number) {
+  await cancelForItem(itemId);
+  await setNotificationIds(db, itemId, []);
 }
-
-let resyncInFlight: Promise<void> | null = null;
 
 /**
  * 모든 예약을 지우고 활성 항목 전체를 가까운 순서로 다시 예약한다.

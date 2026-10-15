@@ -6,7 +6,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing, type Theme } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'destructive';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 'danger';
 
 type ButtonProps = {
   label: string;
@@ -28,6 +28,8 @@ function colorsFor(variant: Variant, theme: Theme) {
       return { background: 'transparent', text: theme.accent };
     case 'destructive':
       return { background: 'transparent', text: theme.danger };
+    case 'danger':
+      return { background: theme.danger, text: theme.onAccent };
   }
 }
 

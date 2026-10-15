@@ -1,10 +1,11 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { CategoryAvatar } from '@/components/category-avatar';
+import { ConfirmSheet } from '@/components/confirm-sheet';
 import { ItemForm } from '@/components/item-form';
 import { SectionCard } from '@/components/section-card';
 import { StatusPill } from '@/components/status-pill';
@@ -18,16 +19,28 @@ import { formatShortDate, getDday, getEffectiveExpiry } from '@/lib/expiry';
 import * as haptics from '@/lib/haptics';
 import { cancelItemNotifications, syncItemNotifications } from '@/lib/notifications';
 
-const FINISH_LABEL: Record<Exclude<ItemStatus, 'active'>, string> = {
+type FinishStatus = Exclude<ItemStatus, 'active'>;
+
+const FINISH_LABEL: Record<FinishStatus, string> = {
   consumed: '다 썼어요',
   discarded: '버렸어요',
 };
+
+const FINISH_TITLE: Record<FinishStatus, string> = {
+  consumed: '다 썼나요?',
+  discarded: '버렸나요?',
+};
+
+type PendingAction = FinishStatus | 'delete';
 
 export default function ItemDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const db = useSQLiteContext();
   const theme = useTheme();
   const [item, setItem] = useState<Item | null | undefined>(undefined);
+  // 시트가 닫히며 사라지는 동안 내용이 바뀌지 않도록 열림 여부와 동작을 따로 둔다
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [action, setAction] = useState<PendingAction>('consumed');
 
   useEffect(() => {
     getItem(db, Number(id)).then(setItem);
@@ -57,34 +70,30 @@ export default function ItemDetailScreen() {
     router.back();
   };
 
-  const confirmFinish = (status: Exclude<ItemStatus, 'active'>) =>
-    Alert.alert(FINISH_LABEL[status], `"${item.name}"을(를) 목록에서 정리하고 알림을 끌게요.`, [
-      { text: '취소', style: 'cancel' },
-      {
-        text: FINISH_LABEL[status],
-        onPress: async () => {
-          await cancelItemNotifications(db, item);
-          await setItemStatus(db, item.id, status);
-          haptics.success();
-          router.back();
-        },
-      },
-    ]);
+  const openSheet = (next: PendingAction) => {
+    setAction(next);
+    setSheetOpen(true);
+  };
+
+  const finish = async (status: FinishStatus) => {
+    setSheetOpen(false);
+    // 상태를 먼저 바꿔야 진행 중인 resync가 이 항목을 다시 예약하지 않는다
+    await setItemStatus(db, item.id, status);
+    await cancelItemNotifications(db, item.id);
+    haptics.success();
+    router.back();
+  };
+
+  const remove = async () => {
+    setSheetOpen(false);
+    await deleteItem(db, item.id);
+    await cancelItemNotifications(db, item.id);
+    router.back();
+  };
 
   const confirmDelete = () => {
     haptics.warning();
-    Alert.alert('삭제할까요?', `"${item.name}" 항목이 영구 삭제됩니다.`, [
-      { text: '취소', style: 'cancel' },
-      {
-        text: '삭제',
-        style: 'destructive',
-        onPress: async () => {
-          await cancelItemNotifications(db, item);
-          await deleteItem(db, item.id);
-          router.back();
-        },
-      },
-    ]);
+    openSheet('delete');
   };
 
   const initial: ItemInput = {
@@ -129,7 +138,7 @@ export default function ItemDetailScreen() {
                     key={status}
                     label={FINISH_LABEL[status]}
                     variant="secondary"
-                    onPress={() => confirmFinish(status)}
+                    onPress={() => openSheet(status)}
                     style={styles.finishButton}
                   />
                 ))}
@@ -138,6 +147,25 @@ export default function ItemDetailScreen() {
             <Button label="항목 삭제" variant="destructive" onPress={confirmDelete} />
           </View>
         }
+      />
+      <ConfirmSheet
+        visible={sheetOpen}
+        leading={<CategoryAvatar category={item.category} size={64} />}
+        onCancel={() => setSheetOpen(false)}
+        {...(action === 'delete'
+          ? {
+              title: '삭제할까요?',
+              message: `"${item.name}" 항목이 영구 삭제돼요. 되돌릴 수 없어요.`,
+              confirmLabel: '삭제',
+              tone: 'danger',
+              onConfirm: remove,
+            }
+          : {
+              title: FINISH_TITLE[action],
+              message: `"${item.name}"을(를) 목록에서 정리하고 알림을 끌게요.`,
+              confirmLabel: FINISH_LABEL[action],
+              onConfirm: () => finish(action),
+            })}
       />
     </ThemedView>
   );

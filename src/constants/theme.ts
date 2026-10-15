@@ -21,6 +21,7 @@ export const Colors = {
     dangerSoft: '#F7E1DA',
     warning: '#A86F0F',
     warningSoft: '#F8ECD2',
+    scrim: 'rgba(43, 38, 33, 0.45)',
   },
   dark: {
     text: '#F3EEE6',
@@ -36,6 +37,7 @@ export const Colors = {
     dangerSoft: '#3D2620',
     warning: '#E0A23B',
     warningSoft: '#3B3020',
+    scrim: 'rgba(0, 0, 0, 0.6)',
   },
 } as const;
 
