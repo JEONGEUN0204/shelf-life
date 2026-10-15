@@ -1,16 +1,15 @@
-<p align="center">
-  <img src="docs/screenshots/icon.png" width="96" alt="언제까지? 앱 아이콘" />
-</p>
-
 <h1 align="center">언제까지?</h1>
 
 <p align="center">식품·화장품 등의 유통기한/개봉 후 사용기한을 기록하고, 만료 전에 알림을 받는 Expo 앱.</p>
 
 <p align="center">
-  <img src="docs/screenshots/splash.png" width="200" alt="스플래시" />
-  <img src="docs/screenshots/home.png" width="200" alt="목록" />
-  <img src="docs/screenshots/new.png" width="200" alt="새 항목" />
-  <img src="docs/screenshots/settings.png" width="200" alt="설정" />
+  <img src="docs/mockups/hero.png" alt="언제까지? 대표 이미지" />
+</p>
+
+## 스크린샷
+
+<p align="center">
+  <img src="docs/mockups/overview.png" alt="목록, 항목 수정, 개봉 후 사용기한·알림, 설정, 다크 모드 화면" />
 </p>
 
 ## 기능
