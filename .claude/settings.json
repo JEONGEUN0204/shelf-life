@@ -1,4 +1,56 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc --noEmit*)",
+      "Bash(npx expo lint*)",
+      "Bash(npx jest*)",
+      "Bash(npm test*)",
+      "Bash(npx expo-doctor*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(*adb devices*)",
+      "Bash(*adb logcat -d*)",
+      "Bash(*adb exec-out screencap*)"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/check.js\"",
+            "timeout": 180
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-metro.js\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/prebuild-reminder.js\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
   "enabledPlugins": {
     "expo@claude-plugins-official": true
   }
